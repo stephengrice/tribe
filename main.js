@@ -6,10 +6,8 @@ const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 const FPS = 30;
 const LOOP_INTERVAL = 1000 / FPS;
-const STATE = {};
-STATE.WAIT = 0;
-STATE.WALK = 1;
-const MAX_ACTION_TIME = 5;
+const STATE = ['wait', 'walk', 'turn'];
+const MAX_ACTION_TIME = 2;
 ctx = canvas.getContext('2d');
 
 window.onload = function() {
@@ -34,34 +32,55 @@ class Person {
   constructor(x,y) {
     this.x = x;
     this.y = y;
+
+    this.v = 0;
+    this.rot = 0;
+
     this.width = 10;
     this.height = 10;
 
     this.state = STATE.WAIT;
-    this.nextChange = this.chooseNextChange();
+    this.chooseNextChange();
   }
   act() {
-
-    if (this.state == STATE.WALK) {
-      this.x ++;
+    switch(this.state) {
+      case 'wait':
+        this.v = 0;
+        break;
+      case 'walk':
+        this.v = 1;
+        break;
+      case 'turn':
+        this.v = 0;
+        this.rot += 1;
+        break;
+    }
+    if (this.state == 'walk') {
+      this.v = 1;
+    } else if (this.state == 'turn') {
+      this.rot += 1;
     }
 
+    // Move according to vx, vy, and rot
+    this.x += this.v * Math.sin(Math.PI * this.rot / 180);
+    this.y += this.v * Math.cos(Math.PI * this.rot / 180);
+    // Choose next change of behavior and when
     if (this.nextChange <= new Date().getTime()) {
-      this.nextChange = this.chooseNextChange();
-      if (this.state == STATE.WAIT) {
-        this.state = STATE.WALK;
-      } else {
-        this.state = STATE.WAIT;
-      }
+      this.chooseNextChange();
+      this.chooseNextState();
     }
   }
   draw() {
     ctx.fillStyle = "black";
     ctx.fillRect(this.x, this.y - this.height / 2, this.width, this.height);
   }
+  chooseNextState() {
+    let choice = Math.floor(Math.random() * STATE.length); // Choose a random next state
+    this.state = STATE[choice];
+    console.log('next state: ' + STATE[choice]);
+  }
   chooseNextChange() {
-    console.log("choosing next time");
     let now = new Date().getTime();
-    return now + Math.random() * MAX_ACTION_TIME * 1000;
+    this.nextChange = now + Math.random() * MAX_ACTION_TIME * 1000;
   }
 }
