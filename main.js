@@ -1,5 +1,6 @@
 var people = []
 var canvas = document.getElementById('canvas');
+var peopleIDs = 0;
 
 
 var windowWidth = window.innerWidth;
@@ -31,13 +32,17 @@ canvas.onclick = function(e) {
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (var i = 0; i < people.length; i++) {
-    people[i].act();
+    if (!people[i]) continue;
     people[i].draw();
+    people[i].act();
   }
 }
 
 class Person {
   constructor(x,y) {
+    this.id = peopleIDs;
+    peopleIDs++;
+
     this.v = 0;
     this.rot = Math.random() * 360;
 
@@ -49,8 +54,17 @@ class Person {
     this.x = x;
     this.y = y;
 
+    this.health = 100;
+
     this.state = STATE.WAIT;
     this.chooseNextChange();
+  }
+  draw() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(this.x - this.width / 2, this.y, this.width, this.height);
+    // Draw health bar
+    ctx.fillStyle = "red"
+    ctx.fillRect(this.x - this.health / 4, this.y - this.height * 1.5, this.health / 2, 10)
   }
   act() {
     // Perform state-specific behavior
@@ -75,6 +89,14 @@ class Person {
         break;
     }
 
+    // Deplete hunger
+    this.health -= 0.5;
+
+    // health check
+    if (this.health <= 0) {
+      this.die();
+    }
+
     // Bounds check
     if (this.x > windowWidth) {
       this.x = windowWidth;
@@ -92,10 +114,6 @@ class Person {
       this.chooseNextState();
     }
   }
-  draw() {
-    ctx.fillStyle = "black";
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-  }
   chooseNextState() {
     let choice = Math.floor(Math.random() * STATE.length); // Choose a random next state
     this.state = STATE[choice];
@@ -103,5 +121,12 @@ class Person {
   chooseNextChange() {
     let now = new Date().getTime();
     this.nextChange = now + Math.random() * MAX_ACTION_TIME * 1000;
+  }
+  die() {
+    for (var i = 0; i < people.length; i++) {
+      if (people[i].id == this.id) {
+        people[i] = false;
+      }
+    }
   }
 }
