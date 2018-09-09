@@ -2,8 +2,8 @@ var people = []
 var canvas = document.getElementById('canvas');
 
 
-const WIDTH = window.innerWidth;
-const HEIGHT = window.innerHeight;
+var windowWidth = window.innerWidth;
+var windowHeight = window.innerHeight;
 const FPS = 30;
 const LOOP_INTERVAL = 1000 / FPS;
 const STATE = ['wait', 'walk', 'turn left', 'turn right'];
@@ -11,8 +11,7 @@ const MAX_ACTION_TIME = 2;
 ctx = canvas.getContext('2d');
 
 window.onload = function() {
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
+  fixCanvasSize();
   setInterval(loop, LOOP_INTERVAL);
 }
 
@@ -77,13 +76,13 @@ class Person {
     }
 
     // Bounds check
-    if (this.x > WIDTH) {
-      this.x = WIDTH;
+    if (this.x > windowWidth) {
+      this.x = windowWidth;
     } else if (this.x < 0) {
       this.x = 0;
     }
-    if (this.y > HEIGHT) {
-      this.y = HEIGHT;
+    if (this.y > windowHeight) {
+      this.y = windowHeight;
     } else if (this.y < 0) {
       this.y = 0;
     }
