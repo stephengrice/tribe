@@ -40,10 +40,12 @@ function loop() {
 class Person {
   constructor(x,y) {
     this.v = 0;
-    this.rot = 0;
+    this.rot = Math.random() * 360;
 
     this.width = 10;
     this.height = 10;
+
+    this.speed = 1;
 
     this.x = x;
     this.y = y;
@@ -52,13 +54,15 @@ class Person {
     this.chooseNextChange();
   }
   act() {
+    // Perform state-specific behavior
     switch(this.state) {
       case 'wait':
         this.v = 0;
         break;
       case 'walk':
-        // console.log('walking' + this.rot)
-        this.v = 1;
+        // Move according to speed and rot
+        this.x += this.speed * Math.sin(Math.PI * this.rot / 180);
+        this.y += this.speed * Math.cos(Math.PI * this.rot / 180);
         break;
       case 'turn left':
         // console.log('turning left' + this.rot)
@@ -72,9 +76,6 @@ class Person {
         break;
     }
 
-    // Move according to vx, vy, and rot
-    this.x += this.v * Math.sin(Math.PI * this.rot / 180);
-    this.y += this.v * Math.cos(Math.PI * this.rot / 180);
     // Bounds check
     if (this.x > WIDTH) {
       this.x = WIDTH;
