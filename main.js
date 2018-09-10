@@ -100,6 +100,13 @@ class Controller {
     this.boundEnd = {x: e.clientX, y: e.clientY}
   }
   endDrag(e) {
+    for (var i = 0; i < people.length; i++) {
+      if (isPointInBox(this.boundBegin, this.boundEnd, people[i])) {
+        people[i].selected = true;
+      } else {
+        people[i].selected = false;
+      }
+    }
     this.bounding = false;
   }
   draw() {
@@ -133,13 +140,19 @@ class Person {
     this.x = x;
     this.y = y;
 
+    this.selected = false;
+
     this.health = 100;
 
     this.state = STATE.WAIT;
     this.chooseNextChange();
   }
   draw() {
-    ctx.fillStyle = "black";
+    if (this.selected) {
+      ctx.fillStyle = "yellow";
+    } else {
+      ctx.fillStyle = "black";
+    }
     ctx.fillRect(this.x - this.width / 2, this.y, this.width, this.height);
     // Draw health bar
     ctx.fillStyle = "red"
@@ -169,7 +182,7 @@ class Person {
     }
 
     // Deplete hunger
-    this.health -= 0.5;
+    this.health -= 0.1;
 
     // health check
     if (this.health <= 0) {
@@ -203,9 +216,18 @@ class Person {
   }
   die() {
     for (var i = 0; i < people.length; i++) {
-      if (people[i].id == this.id) {
-        people[i] = false;
+      if (people[i] && people[i].id == this.id) {
+        delete people[i];
       }
     }
   }
+}
+
+// HELPER FUNCTIONS
+function isPointInBox(b1, b2, p) {
+  let withinX = (b1.x < b2.x && b1.x < p.x && p.x < b2.x)
+                  || (b2.x < b1.x && b2.x < p.x && p.x < b1.x);
+  let withinY = (b1.y < b2.y && b1.y < p.y && p.y < b2.y)
+                  || (b2.y < b1.y && b2.y < p.y && p.y < b1.y);
+  return withinX && withinY;
 }
