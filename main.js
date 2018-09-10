@@ -12,7 +12,7 @@ const STATE = ['wait', 'walk', 'turn left', 'turn right'];
 const MAX_ACTION_TIME = 2;
 const MODE = {
   SPAWN: 0,
-  COMMAND: 1,
+  SELECT: 1,
 };
 ctx = canvas.getContext('2d');
 
@@ -31,16 +31,16 @@ window.onload = function() {
 
   // Setup GUI buttons
   btnSpawn = document.getElementById('btnSpawn');
-  btnCommand = document.getElementById('btnCommand');
+  btnSelect = document.getElementById('btnSelect');
   btnSpawn.onclick = function() {
     btnSpawn.disabled = true;
-    btnCommand.disabled = false;
+    btnSelect.disabled = false;
     controller.setMode(MODE.SPAWN);
   };
-  btnCommand.onclick = function() {
+  btnSelect.onclick = function() {
     btnSpawn.disabled = false;
-    btnCommand.disabled = true;
-    controller.setMode(MODE.COMMAND);
+    btnSelect.disabled = true;
+    controller.setMode(MODE.SELECT);
   };
 
   fixCanvasSize();
@@ -75,19 +75,19 @@ class Controller {
     this.boundEnd = {x: 0, y: 0}
   }
   handleMouseDown(e) {
-    if (this.mode == MODE.COMMAND) {
+    if (this.mode == MODE.SELECT) {
       this.beginDrag(e);
     }
   }
   handleMouseUp(e) {
     if (this.mode == MODE.SPAWN) {
       people.push(new Person(e.clientX, e.clientY));
-    } else if (this.mode == MODE.COMMAND) {
+    } else if (this.mode == MODE.SELECT) {
       this.endDrag(e);
     }
   }
   handleMouseMove(e) {
-    if (this.mode == MODE.COMMAND) {
+    if (this.mode == MODE.SELECT) {
       this.boundEnd = {x: e.clientX, y: e.clientY};
     }
   }
