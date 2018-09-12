@@ -8,11 +8,12 @@ var windowHeight = window.innerHeight;
 var controller;
 const FPS = 30;
 const LOOP_INTERVAL = 1000 / FPS;
-const STATE = ['wait', 'walk', 'turn left', 'turn right'];
+const STATE = ['wait', 'walk', 'turn left', 'turn right', 'target'];
 const MAX_ACTION_TIME = 2;
 const MODE = {
   SPAWN: 0,
   SELECT: 1,
+  COMMAND: 2,
 };
 ctx = canvas.getContext('2d');
 
@@ -32,16 +33,25 @@ window.onload = function() {
   // Setup GUI buttons
   btnSpawn = document.getElementById('btnSpawn');
   btnSelect = document.getElementById('btnSelect');
+  btnCommand = document.getElementById('btnCommand');
   btnSpawn.onclick = function() {
     btnSpawn.disabled = true;
     btnSelect.disabled = false;
+    btnCommand.disabled = false;
     controller.setMode(MODE.SPAWN);
   };
   btnSelect.onclick = function() {
     btnSpawn.disabled = false;
     btnSelect.disabled = true;
+    btnCommand.disabled = false;
     controller.setMode(MODE.SELECT);
   };
+  btnCommand.onclick = function() {
+    btnSpawn.disabled = false;
+    btnSelect.disabled = false;
+    btnCommand.disabled = true;
+    controller.setMode(MODE.COMMAND);
+  }
 
   fixCanvasSize();
   setInterval(loop, LOOP_INTERVAL);
@@ -71,8 +81,9 @@ class Controller {
   constructor() {
     this.mode = MODE.SPAWN;
     this.bounding = false;
-    this.boundBegin = {x: 0, y: 0}
-    this.boundEnd = {x: 0, y: 0}
+    this.boundBegin = {x: 0, y: 0};
+    this.boundEnd = {x: 0, y: 0};
+    this.commandTarget = {x:0, y:0};
   }
   handleMouseDown(e) {
     if (this.mode == MODE.SELECT) {
@@ -84,6 +95,14 @@ class Controller {
       people.push(new Person(e.clientX, e.clientY));
     } else if (this.mode == MODE.SELECT) {
       this.endDrag(e);
+    } else if (this.mode == MODE.COMMAND) {
+      this.commandTarget = {x: e.clientX, y: e.clientY};
+      // Set all people to "target" MODE
+      for (var i = 0; i < people.length; i++ ) {
+        if (people[i] && people[i].selected) {
+          people[i].state = 'target';
+        }
+      }
     }
   }
   handleMouseMove(e) {
@@ -101,6 +120,7 @@ class Controller {
   }
   endDrag(e) {
     for (var i = 0; i < people.length; i++) {
+      if (!people[i]) continue;
       if (isPointInBox(this.boundBegin, this.boundEnd, people[i])) {
         people[i].selected = true;
       } else {
@@ -113,13 +133,6 @@ class Controller {
     if (this.bounding) {
       ctx.fillStyle = "rgba(0,0,0,0.2)";
       ctx.fillRect(this.boundBegin.x, this.boundBegin.y, this.boundEnd.x - this.boundBegin.x, this.boundEnd.y - this.boundBegin.y)
-      // ctx.beginPath();
-      // ctx.lineTo(this.boundBegin.x, this.boundBegin.y); //b,b
-      // ctx.lineTo(this.boundBegin.x, this.boundEnd.y); // b,e
-      // ctx.lineTo(this.boundEnd.x, this.boundEnd.y); // e,e
-      // ctx.lineTo(this.boundEnd.x, this.boundBegin.y); // e,b
-      // ctx.closePath();
-      // ctx.fillRect(this.boundBegin.x, this.boundBegin.y, 10,10);
     }
   }
 }
@@ -144,7 +157,7 @@ class Person {
 
     this.health = 100;
 
-    this.state = STATE.WAIT;
+    this.state = 'wait';
     this.chooseNextChange();
   }
   draw() {
@@ -165,9 +178,7 @@ class Person {
         this.v = 0;
         break;
       case 'walk':
-        // Move according to speed and rot
-        this.x += this.speed * Math.sin(Math.PI * this.rot / 180);
-        this.y += this.speed * Math.cos(Math.PI * this.rot / 180);
+        this.walk();
         break;
       case 'turn left':
         // console.log('turning left' + this.rot)
@@ -178,6 +189,14 @@ class Person {
         // console.log('turning right' + this.rot)
         this.v = 0;
         this.rot -= 1;
+        break;
+      case 'target':
+        // Turn towards commandTarget
+        let target = controller.commandTarget;
+        this.rot = Math.atan2(this.y - target.y, this.x - target.x) * (180/Math.PI);
+        console.log('calc\'d rot ' + this.rot);
+        // Walk towards target
+        this.walk();
         break;
     }
 
@@ -201,13 +220,21 @@ class Person {
       this.y = 0;
     }
     // Choose next change of behavior and when
-    if (this.nextChange <= new Date().getTime()) {
+    // ONLY IF state is not target
+    if (this.state != 'target'  && this.nextChange <= new Date().getTime()) {
       this.chooseNextChange();
       this.chooseNextState();
     }
   }
+  walk() {
+    // Move according to speed and rot
+    this.x += this.speed * Math.sin(Math.PI * this.rot / 180);
+    this.y += this.speed * Math.cos(Math.PI * this.rot / 180);
+  }
   chooseNextState() {
-    let choice = Math.floor(Math.random() * STATE.length); // Choose a random next state
+    let choice = Math.floor(Math.random() * (STATE.length - 1)); // Choose a random next state
+    // Exclude 'target' state. this needs to be fixed.
+    // console.log('state chosen. ' + STATE[choice])
     this.state = STATE[choice];
   }
   chooseNextChange() {
