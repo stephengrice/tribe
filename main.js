@@ -1,4 +1,5 @@
-var people = []
+var people = [];
+var foods = [];
 var canvas = document.getElementById('canvas');
 var peopleIDs = 0;
 
@@ -14,8 +15,9 @@ const MODE = {
   SPAWN: 0,
   SELECT: 1,
   COMMAND: 2,
+  BUY: 3,
 };
-const TARGET_REACHED_CRITERIA = 10; // Close enough to target to move on to something else
+const TARGET_REACHED_CRITERIA = 5; // Close enough to target to move on to something else
 ctx = canvas.getContext('2d');
 
 window.onload = function() {
@@ -35,23 +37,34 @@ window.onload = function() {
   btnSpawn = document.getElementById('btnSpawn');
   btnSelect = document.getElementById('btnSelect');
   btnCommand = document.getElementById('btnCommand');
+  btnBuy = document.getElementById('btnBuy');
   btnSpawn.onclick = function() {
     btnSpawn.disabled = true;
     btnSelect.disabled = false;
     btnCommand.disabled = false;
+    btnBuy.disabled = false;
     controller.setMode(MODE.SPAWN);
   };
   btnSelect.onclick = function() {
     btnSpawn.disabled = false;
     btnSelect.disabled = true;
     btnCommand.disabled = false;
+    btnBuy.disabled = false;
     controller.setMode(MODE.SELECT);
   };
   btnCommand.onclick = function() {
     btnSpawn.disabled = false;
     btnSelect.disabled = false;
     btnCommand.disabled = true;
+    btnBuy.disabled = false;
     controller.setMode(MODE.COMMAND);
+  }
+  btnBuy.onclick = function() {
+    btnSpawn.disabled = false;
+    btnSelect.disabled = false;
+    btnCommand.disabled = false;
+    btnBuy.disabled = true;
+    controller.setMode(MODE.BUY);
   }
 
   fixCanvasSize();
@@ -73,6 +86,9 @@ function loop() {
     if (!people[i]) continue;
     people[i].draw();
     people[i].act();
+  }
+  for (var i = 0; i < foods.length; i++) {
+    foods[i].draw();
   }
   // Draw controller - bounding box
   controller.draw();
@@ -104,6 +120,8 @@ class Controller {
           people[i].ambulating = false; // Disable random state switching
         }
       }
+    } else if (this.mode == MODE.BUY) {
+      foods.push(new Food(e.clientX, e.clientY));
     }
   }
   handleMouseMove(e) {
@@ -256,6 +274,17 @@ class Person {
         delete people[i];
       }
     }
+  }
+}
+
+class Food {
+  constructor(x,y) {
+    this.x = x;
+    this.y = y;
+  }
+  draw() {
+    ctx.fillStyle = "green";
+    ctx.fillRect(this.x, this.y, 5, 5);
   }
 }
 
