@@ -83,7 +83,6 @@ class Controller {
     this.bounding = false;
     this.boundBegin = {x: 0, y: 0};
     this.boundEnd = {x: 0, y: 0};
-    this.commandTarget = {x:0, y:0};
   }
   handleMouseDown(e) {
     if (this.mode == MODE.SELECT) {
@@ -96,11 +95,12 @@ class Controller {
     } else if (this.mode == MODE.SELECT) {
       this.endDrag(e);
     } else if (this.mode == MODE.COMMAND) {
-      this.commandTarget = {x: e.clientX, y: e.clientY};
       // Set all people to "target" MODE
       for (var i = 0; i < people.length; i++ ) {
         if (people[i] && people[i].selected) {
+          people[i].commandTarget = {x: e.clientX, y: e.clientY};
           people[i].state = 'target';
+          people[i].ambulating = false; // Disable random state switching
         }
       }
     }
@@ -153,9 +153,13 @@ class Person {
     this.x = x;
     this.y = y;
 
+    this.commandTarget = {x:0, y:0};
+
     this.selected = false;
 
     this.health = 100;
+
+    this.ambulating = true;
 
     this.state = 'wait';
     this.chooseNextChange();
@@ -192,10 +196,9 @@ class Person {
         break;
       case 'target':
         // Turn towards commandTarget
-        let target = controller.commandTarget;
-        this.rot = Math.atan2(target.y - this.y, target.x - this.x) * (180/Math.PI) - 90;
+        let target = this.commandTarget;
+        this.rot = Math.atan2(target.y - this.y, target.x - this.x) * (180/Math.PI) - 90; // TODO fix this and direction of walk
         this.rot = -this.rot;
-        console.log('calc\'d rot ' + this.rot);
         // Walk towards target
         this.walk();
         break;
@@ -221,8 +224,8 @@ class Person {
       this.y = 0;
     }
     // Choose next change of behavior and when
-    // ONLY IF state is not target
-    if (this.state != 'target'  && this.nextChange <= new Date().getTime()) {
+    // Only if player is "ambulating" and free to randomly change state
+    if (this.ambulating  && this.nextChange <= new Date().getTime()) {
       this.chooseNextChange();
       this.chooseNextState();
     }
