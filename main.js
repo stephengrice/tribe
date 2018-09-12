@@ -88,6 +88,7 @@ function loop() {
     people[i].act();
   }
   for (var i = 0; i < foods.length; i++) {
+    if (!foods[i]) continue;
     foods[i].draw();
   }
   // Draw controller - bounding box
@@ -235,6 +236,14 @@ class Person {
       this.die();
     }
 
+    // Check for collisions with foods
+    for (var i = 0; i < foods.length; i++) {
+      if (collision(this, foods[i])) {
+        delete foods[i];
+        this.health = 100;
+      }
+    }
+
     // Bounds check
     if (this.x > windowWidth) {
       this.x = windowWidth;
@@ -265,11 +274,15 @@ class Person {
       // console.log('state chosen. ' + STATE[choice])
       this.state = STATE[choice];
     } else {
-      console.log('im hungry yo');
       // Hunt a random foods
       // TODO find nearest food instead of random
       this.state = 'target';
-      let foodChoice = Math.floor(Math.random() * foods.length);
+      let foodChoice = undefined;
+      let count = 0;
+      // while (!foodChoice && count < 10) {
+        foodChoice = Math.floor(Math.random() * foods.length);
+      //   count++;
+      // }
       this.commandTarget = {x: foods[foodChoice].x, y: foods[foodChoice].y};
     }
 
@@ -292,10 +305,12 @@ class Food {
   constructor(x,y) {
     this.x = x;
     this.y = y;
+    this.width = 5;
+    this.height = 5;
   }
   draw() {
     ctx.fillStyle = "green";
-    ctx.fillRect(this.x, this.y, 5, 5);
+    ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
 
@@ -306,4 +321,12 @@ function isPointInBox(b1, b2, p) {
   let withinY = (b1.y < b2.y && b1.y < p.y && p.y < b2.y)
                   || (b2.y < b1.y && b2.y < p.y && p.y < b1.y);
   return withinX && withinY;
+}
+function collision(a,b) {
+  if (!a || !b) return false;
+  var not_cond = a.x + a.width < b.x
+  	|| a.y + a.height < b.y
+  	|| b.x + b.width < a.x
+  	|| b.y + b.height < a.y;
+  return !not_cond;
 }
