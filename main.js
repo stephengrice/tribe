@@ -193,7 +193,8 @@ class Person {
       case 'target':
         // Turn towards commandTarget
         let target = controller.commandTarget;
-        this.rot = Math.atan2(this.y - target.y, this.x - target.x) * (180/Math.PI);
+        this.rot = Math.atan2(target.y - this.y, target.x - this.x) * (180/Math.PI) - 90;
+        this.rot = -this.rot;
         console.log('calc\'d rot ' + this.rot);
         // Walk towards target
         this.walk();
