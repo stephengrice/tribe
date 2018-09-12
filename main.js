@@ -15,6 +15,7 @@ const MODE = {
   SELECT: 1,
   COMMAND: 2,
 };
+const TARGET_REACHED_CRITERIA = 10; // Close enough to target to move on to something else
 ctx = canvas.getContext('2d');
 
 window.onload = function() {
@@ -201,6 +202,10 @@ class Person {
         this.rot = -this.rot;
         // Walk towards target
         this.walk();
+        // If we are close enough to the target, switch modes.
+        if (Math.abs(this.x - target.x) <= TARGET_REACHED_CRITERIA && Math.abs(this.y - target.y) <= TARGET_REACHED_CRITERIA) {
+          this.ambulating = true;
+        }
         break;
     }
 
