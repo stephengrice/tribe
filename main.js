@@ -259,16 +259,27 @@ class Person {
     this.y += this.speed * Math.cos(Math.PI * this.rot / 180);
   }
   chooseNextState() {
-    let choice = Math.floor(Math.random() * (STATE.length - 1)); // Choose a random next state
-    // Exclude 'target' state. this needs to be fixed.
-    // console.log('state chosen. ' + STATE[choice])
-    this.state = STATE[choice];
+    if (this.health > 50 || foods.length < 1) {
+      let choice = Math.floor(Math.random() * (STATE.length - 1)); // Choose a random next state
+      // Exclude 'target' state. this needs to be fixed.
+      // console.log('state chosen. ' + STATE[choice])
+      this.state = STATE[choice];
+    } else {
+      console.log('im hungry yo');
+      // Hunt a random foods
+      // TODO find nearest food instead of random
+      this.state = 'target';
+      let foodChoice = Math.floor(Math.random() * foods.length);
+      this.commandTarget = {x: foods[foodChoice].x, y: foods[foodChoice].y};
+    }
+
   }
   chooseNextChange() {
     let now = new Date().getTime();
     this.nextChange = now + Math.random() * MAX_ACTION_TIME * 1000;
   }
   die() {
+    // Delete self from people array
     for (var i = 0; i < people.length; i++) {
       if (people[i] && people[i].id == this.id) {
         delete people[i];
