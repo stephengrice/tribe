@@ -83,12 +83,10 @@ function fixCanvasSize() {
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (var i = 0; i < people.length; i++) {
-    if (!people[i]) continue;
     people[i].draw();
     people[i].act();
   }
   for (var i = 0; i < foods.length; i++) {
-    if (!foods[i]) continue;
     foods[i].draw();
   }
   // Draw controller - bounding box
@@ -115,7 +113,7 @@ class Controller {
     } else if (this.mode == MODE.COMMAND) {
       // Set all people to "target" MODE
       for (var i = 0; i < people.length; i++ ) {
-        if (people[i] && people[i].selected) {
+        if (people[i].selected) {
           people[i].commandTarget = {x: e.clientX, y: e.clientY};
           people[i].state = 'target';
           people[i].ambulating = false; // Disable random state switching
@@ -140,7 +138,6 @@ class Controller {
   }
   endDrag(e) {
     for (var i = 0; i < people.length; i++) {
-      if (!people[i]) continue;
       if (isPointInBox(this.boundBegin, this.boundEnd, people[i])) {
         people[i].selected = true;
       } else {
@@ -239,7 +236,7 @@ class Person {
     // Check for collisions with foods
     for (var i = 0; i < foods.length; i++) {
       if (collision(this, foods[i])) {
-        delete foods[i];
+        foods.splice(i, 1);
         this.health = 100;
       }
     }
@@ -294,8 +291,8 @@ class Person {
   die() {
     // Delete self from people array
     for (var i = 0; i < people.length; i++) {
-      if (people[i] && people[i].id == this.id) {
-        delete people[i];
+      if (people[i].id == this.id) {
+        people.splice(i, 1); // remove 1 element at i
       }
     }
   }
