@@ -154,6 +154,40 @@ class Controller {
   }
 }
 
+var maxEntityID = -1;
+class Entity {
+  constructor(x, y, width, height) {
+    maxEntityID++;
+    this.id = maxEntityID;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+}
+class Food extends Entity {
+  constructor(x,y) {
+    super(x, y, 5, 5);
+  }
+}
+class LivingEntity extends Entity {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this.speed = 1;
+    this.rot = Math.random() * 360;
+    this.selected = false;
+    this.health = 100;
+    this.commandTarget = {x:0, y:0};
+  }
+}
+class APerson extends LivingEntity {
+  constructor(x,y) {
+    super(x, y, 10, 10);
+    this.ambulating = true;
+    this.state = 'wait';
+    this.chooseNextChange();
+  }
+}
 class Person {
   constructor(x,y) {
     this.id = peopleIDs;
@@ -295,19 +329,6 @@ class Person {
         people.splice(i, 1); // remove 1 element at i
       }
     }
-  }
-}
-
-class Food {
-  constructor(x,y) {
-    this.x = x;
-    this.y = y;
-    this.width = 5;
-    this.height = 5;
-  }
-  draw() {
-    ctx.fillStyle = "green";
-    ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 }
 
