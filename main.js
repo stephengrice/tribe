@@ -169,6 +169,10 @@ class Food extends Entity {
   constructor(x,y) {
     super(x, y, 5, 5);
   }
+  draw() {
+    ctx.fillStyle = "green";
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
 }
 class LivingEntity extends Entity {
   constructor(x, y, width, height) {
@@ -271,7 +275,8 @@ class Person {
     for (var i = 0; i < foods.length; i++) {
       if (collision(this, foods[i])) {
         foods.splice(i, 1);
-        this.health = 100;
+        this.health += 50;
+        if (this.health > 100) this.health = 100;
       }
     }
 
@@ -309,12 +314,13 @@ class Person {
       // TODO find nearest food instead of random
       this.state = 'target';
       let foodChoice = undefined;
-      let count = 0;
-      // while (!foodChoice && count < 10) {
-        foodChoice = Math.floor(Math.random() * foods.length);
-      //   count++;
-      // }
-      this.commandTarget = {x: foods[foodChoice].x, y: foods[foodChoice].y};
+      // Find nearest food
+      for (var i = 0; i < foods.length; i++) {
+        if (!foodChoice || distanceBetween(this, foods[i]) < distanceBetween(this, foodChoice)) {
+          foodChoice = foods[i];
+        }
+      }
+      this.commandTarget = {x: foodChoice.x, y: foodChoice.y};
     }
 
   }
@@ -347,4 +353,9 @@ function collision(a,b) {
   	|| b.x + b.width < a.x
   	|| b.y + b.height < a.y;
   return !not_cond;
+}
+function distanceBetween(pointA, pointB) {
+  var x = pointB.x - pointA.x;
+  var y = pointB.y - pointA.y;
+  return Math.sqrt(x*x + y*y);
 }
