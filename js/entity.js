@@ -7,11 +7,13 @@ class Entity {
     this.y = y;
     this.width = width;
     this.height = height;
+    this.type = 'Entity';
   }
 }
 class Building extends Entity {
   constructor(x,y) {
     super(x,y,100,100);
+    this.type = 'Building';
   }
   draw() {
     ctx.fillStyle = "brown";
@@ -21,6 +23,7 @@ class Building extends Entity {
 class Food extends Entity {
   constructor(x,y) {
     super(x, y, 5, 5);
+    this.type = 'Food';
   }
   draw() {
     ctx.fillStyle = "green";
@@ -35,6 +38,7 @@ class LivingEntity extends Entity {
     this.selected = false;
     this.health = 100;
     this.commandTarget = {x:0, y:0};
+    this.type = 'LivingEntity';
   }
 }
 class APerson extends LivingEntity {
@@ -43,6 +47,7 @@ class APerson extends LivingEntity {
     this.ambulating = true;
     this.state = 'wait';
     this.chooseNextChange();
+    this.type = 'APerson';
   }
 }
 class Person {
@@ -71,6 +76,7 @@ class Person {
 
     this.state = 'wait';
     this.chooseNextChange();
+    this.type = 'Person';
   }
   draw() {
     if (this.selected) {
@@ -184,7 +190,7 @@ class Person {
   die() {
     // Delete self from people array
     for (var i = 0; i < gameState.people.length; i++) {
-      if (people[i].id == this.id) {
+      if (gameState.people[i].id == this.id) {
         gameState.people.splice(i, 1); // remove 1 element at i
       }
     }
