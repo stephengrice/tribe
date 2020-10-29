@@ -1,4 +1,12 @@
-class PeopleController {
+const MODE = {
+  SPAWN: 0,
+  SELECT: 1,
+  COMMAND: 2,
+  BUY: 3,
+  PLACE_BUILDING: 4,
+};
+
+class GameController {
   constructor(canvas) {
     var that = this;
     canvas.onmousedown = function(e) {
@@ -7,7 +15,10 @@ class PeopleController {
     canvas.onmouseup = function(e) {
       that.handleMouseUp(e);
       for (var i = 0; i < gameState.entities.length; i++) {
-        gameState.entities[i].click(e.clientX, e.clientY);
+        let ent = gameState.entities[i];
+        if (collision(ent, {x: e.clientX, y: e.clientY, width:1, height:1})) {
+          gameState.entities[i].click(e.clientX, e.clientY);
+        }
       }
     };
     canvas.onmousemove = function(e) {

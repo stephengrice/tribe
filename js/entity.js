@@ -78,6 +78,8 @@ class LivingEntity extends Entity {
 
   }
 }
+
+const STATE = ['wait', 'walk', 'turn left', 'turn right', 'target'];
 class Person {
   constructor(x,y) {
     this.id = peopleIDs;

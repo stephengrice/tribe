@@ -12,21 +12,13 @@ var controller;
 const FPS = 30;
 const LOOP_INTERVAL = 1000 / FPS;
 const SAVE_INTERVAL = 5000;
-const STATE = ['wait', 'walk', 'turn left', 'turn right', 'target'];
 const MAX_ACTION_TIME = 2;
-const MODE = {
-  SPAWN: 0,
-  SELECT: 1,
-  COMMAND: 2,
-  BUY: 3,
-  PLACE_BUILDING: 4,
-};
 const TARGET_REACHED_CRITERIA = 5; // Close enough to target to move on to something else
 ctx = canvas.getContext('2d');
 
 window.onload = function() {
   // Setup controller
-  controller = new PeopleController(canvas);
+  controller = new GameController(canvas);
 
   // Labels
   lblCash = document.getElementById('lblCash');
@@ -38,43 +30,18 @@ window.onload = function() {
   btnPlaceBuilding = document.getElementById('btnPlaceBuilding');
   btnHelp = document.getElementById('btnHelp');
   btnSpawn.onclick = function() {
-    btnSpawn.disabled = true;
-    btnSelect.disabled = false;
-    btnCommand.disabled = false;
-    btnPlaceBuilding.disabled = false;
-    btnBuy.disabled = false;
     controller.setMode(MODE.SPAWN);
   };
   btnSelect.onclick = function() {
-    btnSpawn.disabled = false;
-    btnSelect.disabled = true;
-    btnCommand.disabled = false;
-    btnPlaceBuilding.disabled = false;
-    btnBuy.disabled = false;
     controller.setMode(MODE.SELECT);
   };
   btnCommand.onclick = function() {
-    btnSpawn.disabled = false;
-    btnSelect.disabled = false;
-    btnCommand.disabled = true;
-    btnPlaceBuilding.disabled = false;
-    btnBuy.disabled = false;
     controller.setMode(MODE.COMMAND);
   };
   btnBuy.onclick = function() {
-    btnSpawn.disabled = false;
-    btnSelect.disabled = false;
-    btnCommand.disabled = false;
-    btnPlaceBuilding.disabled = false;
-    btnBuy.disabled = true;
     controller.setMode(MODE.BUY);
   };
   btnPlaceBuilding.onclick = function() {
-    btnSpawn.disabled = false;
-    btnSelect.disabled = false;
-    btnCommand.disabled = false;
-    btnPlaceBuilding.disabled = true;
-    btnBuy.disabled = false;
     controller.setMode(MODE.PLACE_BUILDING);
   };
   btnHelp.onclick = function() {
@@ -112,6 +79,12 @@ function loop() {
   controller.draw();
   // Update cash in GUI
   lblCash.innerHTML = "$" + gameState.cash.toFixed(2);
+  // Update button disable state
+  btnSpawn.disabled = controller.mode == MODE.SPAWN;
+  btnSelect.disabled = controller.mode == MODE.SELECT;
+  btnCommand.disabled = controller.mode == MODE.COMMAND;
+  btnBuy.disabled = controller.mode == MODE.BUY;
+  btnPlaceBuilding.disabled = controller.mode == MODE.PLACE_BUILDING;
 }
 
 function save_game() {
