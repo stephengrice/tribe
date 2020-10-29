@@ -148,8 +148,8 @@ class Person {
 
     // Check for collisions with foods
     for (var i = 0; i < gameState.entities.length; i++) {
-      if (!gameState.entities[i] instanceof Food) continue;
-      if (collision(this, gameState.entities[i])) {
+      if (gameState.entities[i] instanceof Food && collision(this, gameState.entities[i])) {
+        console.log(this,gameState.entities[i]);
         gameState.entities.splice(i, 1);
         this.health += 50;
         if (this.health > 100) this.health = 100;
@@ -181,7 +181,9 @@ class Person {
     this.y += this.speed * Math.cos(Math.PI * this.rot / 180);
   }
   chooseNextState() {
-    if (this.health > 50 || gameState.foods.length < 1) {
+    var numFoods = 0;
+    for (var i = 0; i < gameState.entities.length; i++) if (gameState.entities[i] instanceof Food) numFoods++;
+    if (this.health > 50 || numFoods < 1) {
       let choice = Math.floor(Math.random() * (STATE.length - 1)); // Choose a random next state
       // Exclude 'target' state. this needs to be fixed.
       // console.log('state chosen. ' + STATE[choice])
@@ -192,9 +194,9 @@ class Person {
       this.state = 'target';
       let foodChoice = undefined;
       // Find nearest food
-      for (var i = 0; i < gameState.foods.length; i++) {
-        if (!foodChoice || distanceBetween(this, gameState.foods[i]) < distanceBetween(this, foodChoice)) {
-          foodChoice = gameState.foods[i];
+      for (var i = 0; i < gameState.entities.length; i++) {
+        if (gameState.entities[i] instanceof Food && (!foodChoice || distanceBetween(this, gameState.entities[i]) < distanceBetween(this, foodChoice))) {
+          foodChoice = gameState.entities[i];
         }
       }
       this.commandTarget = {x: foodChoice.x, y: foodChoice.y};

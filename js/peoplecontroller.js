@@ -60,7 +60,7 @@ class PeopleController {
   endDrag(e) {
     for (var i = 0; i < gameState.entities.length; i++) {
       if (!gameState.entities[i] instanceof Person) continue; // people only
-      if (isPointInBox(this.boundBegin, this.boundEnd, gameState.people[i])) {
+      if (isPointInBox(this.boundBegin, this.boundEnd, gameState.entities[i])) {
         gameState.entities[i].selected = true;
       } else {
         gameState.entities[i].selected = false;
