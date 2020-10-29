@@ -25,6 +25,9 @@ class Building extends Entity {
     super(x,y,100,100);
     this.type = 'Building';
     this.ready = false;
+    this.scheduleReady();
+  }
+  scheduleReady() {
     var that = this;
     setTimeout(function() {
       that.becomeReady();
@@ -45,6 +48,7 @@ class Building extends Entity {
     if (this.ready) {
       this.ready = false;
       gameState.cash += 100;
+      this.scheduleReady();
     }
   }
 }

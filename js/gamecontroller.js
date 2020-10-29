@@ -24,7 +24,7 @@ class GameController {
     canvas.onmousemove = function(e) {
       that.handleMouseMove(e);
     };
-    this.mode = MODE.SPAWN;
+    this.mode = MODE.SELECT;
     this.bounding = false;
     this.boundBegin = {x: 0, y: 0};
     this.boundEnd = {x: 0, y: 0};
@@ -37,6 +37,7 @@ class GameController {
   handleMouseUp(e) {
     if (this.mode == MODE.SPAWN) {
       gameState.entities.push(new Person(e.clientX, e.clientY));
+      this.mode = MODE.SELECT;
     } else if (this.mode == MODE.SELECT) {
       this.endDrag(e);
     } else if (this.mode == MODE.COMMAND) {
@@ -48,11 +49,14 @@ class GameController {
           gameState.entities[i].state = 'target';
           gameState.entities[i].ambulating = false; // Disable random state switching
         }
+        this.mode = MODE.SELECT;
       }
     } else if (this.mode == MODE.BUY) {
       gameState.entities.push(new Food(e.clientX, e.clientY));
+      this.mode = MODE.SELECT;
     } else if (this.mode == MODE.PLACE_BUILDING) {
       gameState.entities.push(new Building(e.clientX, e.clientY));
+      this.mode = MODE.SELECT;
     }
   }
   handleMouseMove(e) {
