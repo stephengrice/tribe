@@ -1,4 +1,5 @@
 var gameState = {
+  cash: 0,
   entities: [],
 };
 var canvas = document.getElementById('canvas');
@@ -27,6 +28,8 @@ window.onload = function() {
   // Setup controller
   controller = new PeopleController(canvas);
 
+  // Labels
+  lblCash = document.getElementById('lblCash');
   // Setup GUI buttons
   btnSpawn = document.getElementById('btnSpawn');
   btnSelect = document.getElementById('btnSelect');
@@ -107,6 +110,8 @@ function loop() {
   }
   // Draw controller - bounding box
   controller.draw();
+  // Update cash in GUI
+  lblCash.innerHTML = "$" + gameState.cash.toFixed(2);
 }
 
 function save_game() {

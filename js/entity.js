@@ -19,11 +19,19 @@ class Entity {
 
   }
 }
+BUILDING_WAIT_TIME = 5000;
 class Building extends Entity {
   constructor(x,y) {
     super(x,y,100,100);
     this.type = 'Building';
     this.ready = false;
+    var that = this;
+    setTimeout(function() {
+      that.becomeReady();
+    }, BUILDING_WAIT_TIME);
+  }
+  becomeReady() {
+    this.ready = true;
   }
   draw() {
     if (this.ready) {
@@ -34,7 +42,10 @@ class Building extends Entity {
     ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
   }
   click(x, y) {
-
+    if (this.ready) {
+      this.ready = false;
+      gameState.cash += 100;
+    }
   }
 }
 class Food extends Entity {
@@ -149,7 +160,6 @@ class Person {
     // Check for collisions with foods
     for (var i = 0; i < gameState.entities.length; i++) {
       if (gameState.entities[i] instanceof Food && collision(this, gameState.entities[i])) {
-        console.log(this,gameState.entities[i]);
         gameState.entities.splice(i, 1);
         this.health += 50;
         if (this.health > 100) this.health = 100;
