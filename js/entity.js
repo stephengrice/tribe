@@ -9,15 +9,32 @@ class Entity {
     this.height = height;
     this.type = 'Entity';
   }
+  draw() {
+
+  }
+  act() {
+
+  }
+  click(x, y) {
+
+  }
 }
 class Building extends Entity {
   constructor(x,y) {
     super(x,y,100,100);
     this.type = 'Building';
+    this.ready = false;
   }
   draw() {
-    ctx.fillStyle = "brown";
+    if (this.ready) {
+      ctx.fillStyle = "yellow";
+    } else {
+      ctx.fillStyle = "brown";
+    }
     ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+  }
+  click(x, y) {
+
   }
 }
 class Food extends Entity {
@@ -28,6 +45,12 @@ class Food extends Entity {
   draw() {
     ctx.fillStyle = "green";
     ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+  act() {
+
+  }
+  click(x, y) {
+
   }
 }
 class LivingEntity extends Entity {
@@ -40,14 +63,8 @@ class LivingEntity extends Entity {
     this.commandTarget = {x:0, y:0};
     this.type = 'LivingEntity';
   }
-}
-class APerson extends LivingEntity {
-  constructor(x,y) {
-    super(x, y, 10, 10);
-    this.ambulating = true;
-    this.state = 'wait';
-    this.chooseNextChange();
-    this.type = 'APerson';
+  click(x, y) {
+
   }
 }
 class Person {
@@ -124,16 +141,16 @@ class Person {
 
     // Deplete hunger
     this.health -= 0.1;
-
     // health check
     if (this.health <= 0) {
       this.die();
     }
 
     // Check for collisions with foods
-    for (var i = 0; i < gameState.foods.length; i++) {
-      if (collision(this, gameState.foods[i])) {
-        gameState.foods.splice(i, 1);
+    for (var i = 0; i < gameState.entities.length; i++) {
+      if (!gameState.entities[i] instanceof Food) continue;
+      if (collision(this, gameState.entities[i])) {
+        gameState.entities.splice(i, 1);
         this.health += 50;
         if (this.health > 100) this.health = 100;
       }
@@ -150,6 +167,7 @@ class Person {
     } else if (this.y < 0) {
       this.y = 0;
     }
+
     // Choose next change of behavior and when
     // Only if player is "ambulating" and free to randomly change state
     if (this.ambulating  && this.nextChange <= new Date().getTime()) {
@@ -189,10 +207,13 @@ class Person {
   }
   die() {
     // Delete self from people array
-    for (var i = 0; i < gameState.people.length; i++) {
-      if (gameState.people[i].id == this.id) {
-        gameState.people.splice(i, 1); // remove 1 element at i
+    for (var i = 0; i < gameState.entities.length; i++) {
+      if (gameState.entities[i].id == this.id) {
+        gameState.entities.splice(i, 1); // remove 1 element at i
       }
     }
+  }
+  click(x, y) {
+
   }
 }

@@ -1,7 +1,5 @@
 var gameState = {
-  people: [],
-  foods: [],
-  buildings: [],
+  entities: [],
 };
 var canvas = document.getElementById('canvas');
 var peopleIDs = 0;
@@ -12,6 +10,7 @@ var windowHeight = window.innerHeight;
 var controller;
 const FPS = 30;
 const LOOP_INTERVAL = 1000 / FPS;
+const SAVE_INTERVAL = 5000;
 const STATE = ['wait', 'walk', 'turn left', 'turn right', 'target'];
 const MAX_ACTION_TIME = 2;
 const MODE = {
@@ -27,7 +26,6 @@ ctx = canvas.getContext('2d');
 window.onload = function() {
   // Setup controller
   controller = new PeopleController(canvas);
-
 
   // Setup GUI buttons
   btnSpawn = document.getElementById('btnSpawn');
@@ -82,6 +80,14 @@ window.onload = function() {
 
   fixCanvasSize();
   setInterval(loop, LOOP_INTERVAL);
+  // savedGame = localStorage.getItem('savedgame')
+  // if (savedGame) {
+  //   parsedState = JSON.parse(savedGame);
+  //   console.log(savedGame);
+  // } else {
+  //   console.log('No saved game found.');
+  // }
+  // setInterval(save_game, SAVE_INTERVAL);
 }
 
 // Fix canvas on window resize
@@ -95,18 +101,17 @@ function fixCanvasSize() {
 
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (var i = 0; i < gameState.people.length; i++) {
-    gameState.people[i].draw();
-    gameState.people[i].act();
-  }
-  for (var i = 0; i < gameState.foods.length; i++) {
-    gameState.foods[i].draw();
-  }
-  for (var i = 0; i < gameState.buildings.length; i++) {
-    gameState.buildings[i].draw();
+  for (var i = 0; i < gameState.entities.length; i++) {
+    gameState.entities[i].draw();
+    gameState.entities[i].act();
   }
   // Draw controller - bounding box
   controller.draw();
+}
+
+function save_game() {
+  localStorage.setItem('savedgame', JSON.stringify(gameState));
+  console.log('saved game')
 }
 
 // HELPER FUNCTIONS

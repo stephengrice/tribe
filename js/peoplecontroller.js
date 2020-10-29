@@ -6,6 +6,9 @@ class PeopleController {
     };
     canvas.onmouseup = function(e) {
       that.handleMouseUp(e);
+      for (var i = 0; i < gameState.entities.length; i++) {
+        gameState.entities[i].click(e.clientX, e.clientY);
+      }
     };
     canvas.onmousemove = function(e) {
       that.handleMouseMove(e);
@@ -22,22 +25,23 @@ class PeopleController {
   }
   handleMouseUp(e) {
     if (this.mode == MODE.SPAWN) {
-      gameState.people.push(new Person(e.clientX, e.clientY));
+      gameState.entities.push(new Person(e.clientX, e.clientY));
     } else if (this.mode == MODE.SELECT) {
       this.endDrag(e);
     } else if (this.mode == MODE.COMMAND) {
       // Set all people to "target" MODE
-      for (var i = 0; i < gameState.people.length; i++ ) {
-        if (gameState.people[i].selected) {
-          gameState.people[i].commandTarget = {x: e.clientX, y: e.clientY};
-          gameState.people[i].state = 'target';
-          gameState.people[i].ambulating = false; // Disable random state switching
+      for (var i = 0; i < gameState.entities.length; i++ ) {
+        if (!gameState.entities[i] instanceof Person) continue; // People only
+        if (gameState.entities[i].selected) {
+          gameState.entities[i].commandTarget = {x: e.clientX, y: e.clientY};
+          gameState.entities[i].state = 'target';
+          gameState.entities[i].ambulating = false; // Disable random state switching
         }
       }
     } else if (this.mode == MODE.BUY) {
-      gameState.foods.push(new Food(e.clientX, e.clientY));
+      gameState.entities.push(new Food(e.clientX, e.clientY));
     } else if (this.mode == MODE.PLACE_BUILDING) {
-      gameState.buildings.push(new Building(e.clientX, e.clientY));
+      gameState.entities.push(new Building(e.clientX, e.clientY));
     }
   }
   handleMouseMove(e) {
@@ -54,11 +58,12 @@ class PeopleController {
     this.boundEnd = {x: e.clientX, y: e.clientY}
   }
   endDrag(e) {
-    for (var i = 0; i < gameState.people.length; i++) {
+    for (var i = 0; i < gameState.entities.length; i++) {
+      if (!gameState.entities[i] instanceof Person) continue; // people only
       if (isPointInBox(this.boundBegin, this.boundEnd, gameState.people[i])) {
-        gameState.people[i].selected = true;
+        gameState.entities[i].selected = true;
       } else {
-        gameState.people[i].selected = false;
+        gameState.entities[i].selected = false;
       }
     }
     this.bounding = false;
